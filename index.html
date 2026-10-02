@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Quiz: Motivación y Emoción</title>
+<style>
+:root{--bg:#f4f1fb;--card:#fff;--tx:#241f33;--mu:#6b6580;--pr:#6d4fd8;--pl:#ece6fb;--ok:#1f9d63;--okb:#e0f5ea;--no:#d23f4f;--nob:#fde6e9;--bd:#ddd6ef;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#151222;--card:#201b33;--tx:#ece8f8;--mu:#a59fbd;--pr:#9a82f0;--pl:#2c2548;--okb:#12382a;--nob:#41202a;--bd:#3a3257}}
+:root[data-theme="dark"]{--bg:#151222;--card:#201b33;--tx:#ece8f8;--mu:#a59fbd;--pr:#9a82f0;--pl:#2c2548;--okb:#12382a;--nob:#41202a;--bd:#3a3257}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.5;min-height:100vh}
+.w{max-width:680px;margin:0 auto;padding:20px 16px 40px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:20px;padding:24px;box-shadow:0 6px 24px rgba(80,50,160,.08)}
+h1{margin:0 0 8px;font-size:1.7rem}h2{margin:0 0 16px;font-size:1.2rem;line-height:1.4}
+p{color:var(--mu);margin:0 0 14px}
+.btn{display:block;width:100%;border:0;border-radius:14px;padding:14px;font-size:1rem;font-weight:600;background:var(--pr);color:#fff;cursor:pointer;margin-top:14px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.s{background:var(--pl);color:var(--pr)}
+.top{display:flex;justify-content:space-between;font-size:.9rem;color:var(--mu);margin-bottom:8px}
+.bar{height:8px;background:var(--pl);border-radius:8px;overflow:hidden;margin-bottom:18px}
+.bar i{display:block;height:100%;background:var(--pr);width:0;transition:width .3s}
+.tag{display:inline-block;background:var(--pl);color:var(--pr);border-radius:20px;padding:3px 12px;font-size:.78rem;font-weight:600;margin-bottom:10px}
+.o{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;background:var(--card);color:var(--tx);border:2px solid var(--bd);border-radius:14px;padding:13px 14px;margin-bottom:10px;font-size:.98rem;cursor:pointer}
+.o b{flex:none;width:28px;height:28px;border-radius:50%;background:var(--pl);color:var(--pr);display:grid;place-items:center;font-size:.85rem}
+.o.sel{border-color:var(--pr);background:var(--pl)}
+.o.ok{border-color:var(--ok);background:var(--okb)}.o.ok b{background:var(--ok);color:#fff}
+.o.no{border-color:var(--no);background:var(--nob)}.o.no b{background:var(--no);color:#fff}
+.o:disabled{cursor:default;color:var(--tx)}
+.fb{border-radius:14px;padding:12px 14px;margin-top:6px;font-size:.95rem}
+.fb.ok{background:var(--okb);color:var(--ok)}.fb.no{background:var(--nob);color:var(--no)}
+.fb span{display:block;color:var(--tx);margin-top:4px}
+.big{font-size:3rem;font-weight:800;color:var(--pr);text-align:center;margin:6px 0}
+.st{display:flex;gap:10px;margin:12px 0}.st div{flex:1;text-align:center;border-radius:14px;padding:12px;font-weight:700}
+.rv{border-top:1px solid var(--bd);padding:10px 0;font-size:.9rem}.rv em{color:var(--ok);font-style:normal}
+.hide{display:none}
+</style></head><body><div class="w">
+<div id="start" class="card"><h1>🧠 Motivación y Emoción</h1>
+<p>Quiz tipo examen basado en tus apuntes, actividades y mapas de clase. Una pregunta a la vez, tres opciones; la respuesta se muestra hasta que contestes. En cada intento cambia el orden de preguntas y opciones.</p>
+<p><b id="n"></b> preguntas</p><button class="btn" onclick="go()">Iniciar examen</button></div>
+<div id="qz" class="card hide">
+<div class="top"><span id="pg"></span><span id="sc"></span></div><div class="bar"><i id="pb"></i></div>
+<span class="tag" id="tg"></span><h2 id="qt"></h2><div id="op"></div><div id="fb"></div>
+<button class="btn hide" id="nx" onclick="nxt()">Siguiente</button></div>
+<div id="rs" class="card hide"><h1>Resultado final</h1><div class="big" id="pc"></div><p id="ms" style="text-align:center"></p>
+<div class="st"><div style="background:var(--okb);color:var(--ok)">✔ <span id="c1"></span> correctas</div><div style="background:var(--nob);color:var(--no)">✖ <span id="c2"></span> incorrectas</div></div>
+<h2 style="margin-top:18px;font-size:1rem">Para repasar</h2><div id="rw"></div>
+<button class="btn" onclick="go()">Intentar nuevamente</button></div></div>
+<script>
+// [tema, pregunta, correcta, incorrecta1, incorrecta2, explicación]
+const Q=[
+["Conceptos","Según tu mapa conceptual, ¿qué es la motivación?","El proceso que da energía y dirección a la conducta","La respuesta breve que organiza lo que sentimos y preparamos","El conjunto de rasgos estables que definen a cada persona","La emoción es la respuesta corta; la motivación es el proceso que energiza y dirige la conducta."],
+["Conceptos","Según Paul Ekman (1992), las emociones son:","Reacciones breves y rápidas a estímulos con experiencia subjetiva y respuestas fisiológicas universales","Construcciones mentales que dependen del contexto cultural y de las experiencias previas","Respuestas a la evaluación cognitiva del significado que damos a las circunstancias","Ekman defiende emociones universales; Barrett y Lazarus tienen otros enfoques."],
+["Conceptos","¿Qué autor define la emoción como una respuesta a la evaluación cognitiva de eventos o situaciones?","Richard Lazarus (1991)","Paul Ekman (1992)","Lisa Feldman Barrett (2017)","Para Lazarus, la emoción depende del significado que atribuimos y se liga a la adaptación."],
+["Conceptos","¿Qué autora plantea que las emociones no son reacciones universales predeterminadas, sino construcciones mentales?","Lisa Feldman Barrett","Abraham Maslow","Carol Dweck","Barrett: dependen del contexto cultural y de las experiencias previas."],
+["Conceptos","¿Qué autor define la motivación como la fuerza que nos impulsa a satisfacer necesidades básicas y alcanzar la autorrealización?","Abraham Maslow","David McClelland","Pintrich y Schunk","McClelland habla de logro, afiliación y poder; Pintrich y Schunk de intensidad, persistencia y dirección."],
+["Conceptos","¿Quién define la motivación como el deseo de alcanzar metas impulsado por la necesidad de logro, afiliación o poder?","David McClelland (1961)","Abraham Maslow (1954)","Pintrich y Schunk (2002)","Es la definición de McClelland, y depende de la personalidad de cada individuo."],
+["Conceptos","¿Qué definición corresponde a Pintrich y Schunk (2002)?","Proceso por el cual una meta o tarea dirige y sostiene la conducta","Fuerza que impulsa a cubrir las necesidades hasta la autorrealización","Deseo de alcanzar metas por logro, afiliación o poder","Afecta la intensidad, la persistencia y la dirección del esfuerzo."],
+["Mapa conceptual","¿Cuáles son los motivos internos que influyen en lo que hacemos y queremos?","Necesidades, cogniciones y emociones","Incentivos, recompensas y castigos","Involucramiento, activación e intensidad","Los incentivos son acontecimientos externos; los otros son indicadores de la conducta."],
+["Mapa conceptual","¿Qué son los acontecimientos externos?","Incentivos del ambiente que pueden impulsar y dirigir la conducta","Procesos internos que influyen en lo que hacemos y queremos","Cambios del cuerpo y del cerebro ligados a la motivación","Los procesos internos son los motivos internos."],
+["Mapa conceptual","¿Qué es la activación fisiológica como indicador de la conducta motivada?","Cambios en el cuerpo y en el cerebro relacionados con la motivación","La participación de la persona en una actividad determinada","Qué tan fuerte se presenta una conducta ante un estímulo","Los otros indicadores son involucramiento (participación) e intensidad."],
+["Ejemplos","Piensas que va a llover y llevas paraguas. ¿Qué motivo interno es?","Cognición","Necesidad","Emoción","Las cogniciones son pensamientos, creencias y expectativas que influyen en cómo actuamos."],
+["Ejemplos","Sientes mucha hambre y comes. ¿Qué motivo interno interviene?","Necesidad","Cognición","Emoción","Las necesidades son condiciones necesarias para vivir, crecer y estar bien."],
+["Ejemplos","Sientes miedo y corres. ¿Qué motivo interno interviene?","Emoción","Necesidad","Cognición","Las emociones son respuestas cortas que organizan lo que sentimos y nos preparan para actuar."],
+["Diferencias","¿Cuál es una diferencia entre emoción y motivación?","La emoción es una respuesta breve; la motivación da energía y dirección sostenida a la conducta","La motivación es una respuesta breve; la emoción da energía y dirección sostenida a la conducta","Ambas son respuestas breves ante estímulos, pero solo la emoción incluye cambios fisiológicos","La emoción es corta y prepara para actuar; la motivación es un proceso que sostiene la conducta."],
+["Selección natural","Según los principios de selección natural, ¿por qué emociones como el miedo se transmiten en las poblaciones?","Fueron seleccionadas por su valor adaptativo","Son aprendidas culturalmente en cada generación","Surgen solo de conflictos inconscientes internos","Las emociones y motivaciones tienen una base evolutiva que ayuda a la supervivencia."],
+["Enfoques","¿En qué se basa la motivación para el enfoque evolutivo (Darwin)?","En el instinto y la supervivencia","En el condicionamiento operante","En los impulsos inconscientes","Está influenciada por la selección natural y la evolución de la especie."],
+["Enfoques","Para Freud (enfoque psicodinámico), la motivación surge de:","Impulsos inconscientes y conflictos internos entre deseos y restricciones sociales","Recompensas y castigos que influyen en repetir conductas","Una jerarquía de necesidades de lo básico a la autorrealización","Los impulsos básicos según Freud son Eros y Thanatos."],
+["Enfoques","¿Qué impulso freudiano es el deseo por el otro y la necesidad de proteger la existencia mediante la reproducción?","Eros","Thanatos","Homeostasis","Eros es el impulso de amar; Thanatos es el instinto de muerte."],
+["Enfoques","¿Cómo se llama el impulso inevitable que nos lleva al dolor, sufrimiento y muerte según Freud?","Thanatos","Eros","Arousal","Thanatos es el instinto de muerte (Eros es el de vida)."],
+["Enfoques","Según el enfoque conductual (Skinner), la motivación se explica por:","Condicionamiento operante: recompensas y castigos influyen en repetir conductas","Reducción de impulsos biológicos para mantener la homeostasis","Comparación con otras personas en un contexto social","Skinner también habló de refuerzo positivo y negativo."],
+["Caja de Skinner","En tu dibujo de la caja de Skinner, ¿qué representa el suelo electrificado?","Castigo","Recompensa","Estímulo de señal","El distribuidor de alimento es la recompensa; el suelo electrificado es el castigo."],
+["Enfoques","¿Qué plantea la teoría de la reducción del impulso (Clark Hull, 1943)?","La motivación busca reducir impulsos biológicos para mantener la homeostasis","La motivación depende del nivel óptimo de activación del sistema nervioso","La motivación depende de la expectativa de éxito y el valor del resultado","Está dentro del enfoque psicobiológico."],
+["Enfoques","¿Qué plantea la teoría de la activación o arousal (Hebb, 1955)?","La motivación depende del nivel óptimo de activación del sistema nervioso","La motivación busca reducir impulsos para mantener la homeostasis","La motivación depende de las propias creencias de capacidad","Hebb: hay un nivel óptimo de activación o excitación."],
+["Homeostasis","¿Qué es la homeostasis?","El proceso por el cual el cuerpo mantiene un equilibrio interno estable","El nivel óptimo de excitación que el sistema nervioso necesita","El impulso inconsciente que protege la existencia","Usa retroalimentación negativa que corrige desviaciones; ej.: regulación de temperatura."],
+["Pirámide de Maslow","En la pirámide de Maslow, ¿qué nivel está entre la seguridad y la autoestima?","Necesidades sociales","Necesidades fisiológicas","Autorrealización","Orden: fisiológicas, seguridad, sociales, autoestima y autorrealización."],
+["Pirámide de Maslow","¿Qué incluye la necesidad de autoestima en la pirámide de Maslow?","Reconocimiento, confianza, respeto y éxito","Afecto, asociación, aceptación e intimidad","Alimentación, mantenimiento, sueño y respiración","Lo segundo es necesidades sociales; lo tercero, fisiológicas."],
+["Pirámide de Maslow","¿Qué nivel de la pirámide de Maslow corresponde al desarrollo del potencial?","Autorrealización","Autoestima","Seguridad","Es el nivel más alto de la jerarquía. Maslow la publicó en 1943."],
+["Enfoque social","¿Qué plantea la teoría de la comparación social (Leon Festinger, 1954)?","La motivación está influenciada por la comparación con otros en un contexto social","La motivación depende de las necesidades de logro, afiliación y poder","La motivación depende de la creencia en las propias capacidades","Pertenece al enfoque social."],
+["McClelland","¿Cómo se define la necesidad de poder (nPod)?","Hacer que otros se comporten de una manera que no se lograría de otro modo","Impulso por sobresalir con respecto a un conjunto de estándares","Deseo de tener relaciones interpersonales amigables","La de logro es nLog; la de afiliación es nAfi."],
+["McClelland","Una persona busca principalmente relaciones interpersonales amigables. ¿Qué necesidad predomina?","Afiliación","Logro","Poder","Es la necesidad de afiliación (nAfi)."],
+["Enfoque cognitivo","Según la teoría de la expectativa-valor (Atkinson, Vroom), la motivación depende de:","La expectativa de éxito y el valor del resultado","La necesidad de logro, poder y afiliación","La reducción de impulsos biológicos","Es del enfoque cognitivo."],
+["Enfoque cognitivo","La creencia en las propias capacidades como clave para la motivación corresponde a:","Teoría de la autoeficacia (Bandura, 1977)","Teoría de la comparación social (Festinger)","Teoría de la activación (Hebb)","Está centrada en la autoeficacia."],
+["Autodeterminación","¿Qué necesidades psicológicas destaca la teoría de la autodeterminación (Deci y Ryan, 1985)?","Autonomía, competencia y relación (afinidad)","Poder, logro y afiliación","Caricias, tiempo y reconocimiento","Poder, logro y afiliación son sociales; caricias, tiempo y reconocimiento son psicoemocionales."],
+["Necesidades","¿Qué necesidades humanas se clasifican como sociales (POLA)?","Poder, logro y afiliación","Autonomía, competencia y afinidad","Comer, dormir, respirar y beber","POLA = Poder, Logro, Afiliación."],
+["Necesidades","¿Qué necesidades se clasifican como psicoemocionales?","Caricias, tiempo y reconocimiento","Comer, dormir, respirar y beber","Autonomía, competencia y afinidad","Las fisiológicas se ligan a Darwin y Maslow."],
+["Línea del tiempo","¿Qué propone la teoría de William James y Lange?","Las emociones están vinculadas a respuestas fisiológicas","La motivación está influida por deseos inconscientes","La emoción es una construcción mental cultural","Es del siglo XIX (década de 1880)."],
+["Línea del tiempo","¿Qué teoría introdujo Carol Dweck en los años 80?","Mentalidad fija vs. mentalidad de crecimiento","Autodeterminación intrínseca y extrínseca","Pasión y perseverancia a largo plazo","Dweck (se escribe así) relaciona la mentalidad con la motivación. La pasión y perseverancia (grit) es de Duckworth."],
+["Mapa neuroanatómico","¿Qué estructura detecta y responde ante amenazas y peligros, y participa en el miedo y la ansiedad?","Amígdala","Hipotálamo","Núcleo accumbens","Ejemplo de tu mapa: sentir miedo y reaccionar ante una situación peligrosa."],
+["Mapa neuroanatómico","¿Qué estructura regula el hambre, la sed y el aparearse, vinculando necesidades fisiológicas con motivación y emoción?","Hipotálamo","Hipocampo","Área septal","Ejemplo: comer o beber para satisfacer una necesidad."],
+["Mapa neuroanatómico","¿Qué estructura participa en la activación y el estado de alerta (ej.: despertar al escuchar un ruido)?","Formación reticular","Corteza cingulada anterior","Hipocampo","La corteza cingulada anterior participa en el ánimo, la volición y la toma de decisiones."],
+["Mapa neuroanatómico","¿Qué estructura es sitio clave del agrado y participa en la motivación y el reforzamiento?","Núcleo accumbens","Amígdala","Formación reticular","Ejemplo: experimentar agrado al comer."]
+];
+let L,i,ok,sel,done,wrong;
+const $=id=>document.getElementById(id);
+const sh=a=>{a=a.slice();for(let k=a.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[a[k],a[j]]=[a[j],a[k]]}return a};
+$('n').textContent=Q.length;
+function show(id){['start','qz','rs'].forEach(x=>$(x).classList.toggle('hide',x!==id));window.scrollTo(0,0)}
+function go(){L=sh(Q).map(q=>({q,o:sh([[q[2],1],[q[3],0],[q[4],0]])}));i=0;ok=0;wrong=[];show('qz');draw()}
+function draw(){const{q,o}=L[i];sel=null;done=false;
+$('pg').textContent='Pregunta '+(i+1)+' de '+L.length;$('sc').textContent='✔ '+ok+'  ✖ '+(i-ok);
+$('pb').style.width=(i/L.length*100)+'%';$('tg').textContent=q[0];$('qt').textContent=q[1];$('fb').innerHTML='';
+$('op').innerHTML='';o.forEach((x,k)=>{const b=document.createElement('button');b.className='o';b.innerHTML='<b>'+'ABC'[k]+'</b><span></span>';b.lastChild.textContent=x[0];b.onclick=()=>{if(done)return;sel=k;conf()};$('op').appendChild(b)});
+$('nx').classList.add('hide');$('nx').textContent=i===L.length-1?'Ver resultado':'Siguiente'}
+function conf(){if(sel===null||done)return;done=true;const{q,o}=L[i];const c=o.findIndex(x=>x[1]);const g=sel===c;
+[...$('op').children].forEach((b,m)=>{b.disabled=true;b.classList.remove('sel');if(m===c)b.classList.add('ok');else if(m===sel)b.classList.add('no')});
+if(g)ok++;else wrong.push([q[1],q[2]]);
+$('fb').innerHTML='<div class="fb '+(g?'ok':'no')+'"><b>'+(g?'¡Correcto!':'Incorrecto. Respuesta correcta: '+'ABC'[c])+'</b><span></span></div>';
+$('fb').querySelector('span').textContent=q[5];
+$('sc').textContent='✔ '+ok+'  ✖ '+(i+1-ok);$('pb').style.width=((i+1)/L.length*100)+'%';
+$('nx').classList.remove('hide')}
+function nxt(){i++;if(i<L.length)draw();else fin()}
+function fin(){const p=Math.round(ok/L.length*100);$('pc').textContent=ok+' / '+L.length+' ('+p+'%)';
+$('ms').textContent=p>=90?'¡Excelente! Dominas el tema 🎉':p>=70?'Muy bien, repasa los detalles 👍':p>=50?'Vas a medias, sigue estudiando 📚':'Necesitas repasar más tus apuntes 💪';
+$('c1').textContent=ok;$('c2').textContent=L.length-ok;
+$('rw').innerHTML=wrong.length?'':'<p>¡Sin errores!</p>';
+wrong.forEach(w=>{const d=document.createElement('div');d.className='rv';d.innerHTML='<div></div><em></em>';d.firstChild.textContent=w[0];d.lastChild.textContent='✔ '+w[1];$('rw').appendChild(d)});
+show('rs')}
+</script></body></html>
